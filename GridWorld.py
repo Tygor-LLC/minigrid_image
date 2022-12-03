@@ -190,6 +190,9 @@ class Goal:
     def draw(self, world, x, y):
         self.shape.draw(world, x, y)
 
+    def update_world_reference(self, world):
+        self.world = world
+
 SHAPES = {
     "triangle": Triangle,
     "square": Square,
@@ -222,20 +225,21 @@ class Agent:
     # 0 - Right, 1 - Down, 2 - Left, 3 - Up
     def move(self, direction):
         x_change, y_change = DIR_TO_VEC[direction]
-        print(x_change, y_change)
         new_row, new_col = self.row + x_change, self.col + y_change
-        print(new_row, new_col)
+
         if self.world.space_can_be_visited(new_row, new_col):
             self.update_loc(new_row, new_col)
             self.world.update_agent_pos(new_row, new_col)
 
+    def update_world_reference(self, world):
+        self.world = world
 
 class GridWorld:
     """
             This acts as our 2d world. Will handle logic of keeping objects in place
 
     """
-    def __init__(self, size, background_color='#FFFFFF'):
+    def __init__(self, size, background_color='#FFFFFF', agent = None, goal = None):
         self.image = None
         self.pencil = None
         self.size = size
@@ -244,8 +248,18 @@ class GridWorld:
 
         self.world = np.empty(shape=(size, size), dtype=object)
 
-        self.agent = Agent(self)
-        self.goal = Goal(self)
+        if agent is None:
+            self.agent = Agent(self)
+        else:
+            self.agent = agent
+            self.agent.update_world_reference(self)
+
+        if goal is None:
+            self.goal = Goal(self)
+        else:
+            self.goal = goal
+            self.goal.update_world_reference(self)
+
 
         max_obstacles = min(3, math.floor((self.size ** 2) / 3))
         self.total_obstacles = random.randint(0, max_obstacles)
@@ -386,8 +400,6 @@ def get_random_unique_shape_and_color(world):
     goal_shape = world.goal.shape.shape
     goal_color = world.goal.shape.color
 
-    print(world.agent.get_name())
-
     random_shape = None
     random_color = None
     # Keep going until you have a unique shape/color that is not an agent or goal
@@ -396,7 +408,7 @@ def get_random_unique_shape_and_color(world):
             (random_shape == goal_shape and random_color == goal_color):
         random_shape = get_random_shape()
         random_color = get_random_color()
-        print(random_color + " " + random_shape)
+
     return random_shape, random_color
 
 
