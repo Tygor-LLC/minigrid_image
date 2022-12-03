@@ -239,7 +239,7 @@ class GridWorld:
             This acts as our 2d world. Will handle logic of keeping objects in place
 
     """
-    def __init__(self, size, background_color='#FFFFFF', agent = None, goal = None):
+    def __init__(self, size, background_color='#FFFFFF', agent = None, goal = None, max_obstacles = 3):
         self.image = None
         self.pencil = None
         self.size = size
@@ -261,7 +261,7 @@ class GridWorld:
             self.goal.update_world_reference(self)
 
 
-        max_obstacles = min(3, math.floor((self.size ** 2) / 3))
+        max_obstacles = min(max_obstacles, math.floor((self.size ** 2) / 3))
         self.total_obstacles = random.randint(0, max_obstacles)
         self.objective = "move the " + self.agent.get_name() + " to the " + self.goal.get_name()
 
